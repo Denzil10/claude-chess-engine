@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JSChess — play against the engine</title>
+<style>
+  :root {
+    --light: #eed9b6; --dark: #b5835a; --bg: #1f2227; --panel: #2a2e35; --text: #e8e6e3; --muted: #9aa0a8;
+    --accent: #7fb3ff; --sel: rgba(255, 221, 87, .55); --last: rgba(155, 199, 0, .45); --check: rgba(230, 40, 40, .75);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; align-items: flex-start; padding: 24px 12px; }
+  h1 { font-size: 20px; margin: 0 0 4px; font-weight: 650; letter-spacing: .2px; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+  #boardWrap { position: relative; width: min(92vw, 560px); }
+  #board { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); width: 100%; aspect-ratio: 1; border-radius: 6px; overflow: hidden;
+           box-shadow: 0 10px 30px rgba(0,0,0,.45); user-select: none; touch-action: none; }
+  .sq { position: relative; min-width: 0; min-height: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .sq.l { background: var(--light); } .sq.d { background: var(--dark); }
+  .sq.last::before, .sq.sel::before, .sq.chk::before { content: ""; position: absolute; inset: 0; }
+  .sq.last::before { background: var(--last); }
+  .sq.sel::before { background: var(--sel); }
+  .sq.chk::before { background: radial-gradient(circle, var(--check) 0%, rgba(230,40,40,.35) 55%, transparent 75%); }
+  .sq .dot { position: absolute; width: 30%; height: 30%; border-radius: 50%; background: rgba(20, 30, 20, .28); pointer-events: none; }
+  .sq .ring { position: absolute; inset: 4%; border-radius: 50%; border: 5px solid rgba(20, 30, 20, .28); pointer-events: none; }
+  .coord { position: absolute; font-size: 11px; font-weight: 700; pointer-events: none; opacity: .8; }
+  .coord.f { right: 3px; bottom: 1px; } .coord.r { left: 3px; top: 1px; }
+  .sq.l .coord { color: var(--dark); } .sq.d .coord { color: var(--light); }
+  .pc { position: relative; font-size: min(10.5vw, 62px); line-height: 1; pointer-events: none; z-index: 1;
+        font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", "DejaVu Sans", "Apple Symbols", serif; }
+  .pc.w { color: #fff; text-shadow: 0 0 1px #000, 0 0 1px #000, 0 0 1px #000, 0 2px 3px rgba(0,0,0,.5); }
+  .pc.b { color: #1b1b1b; text-shadow: 0 0 1px #fff4, 0 2px 3px rgba(0,0,0,.35); }
+  .pc.ghost { position: fixed; z-index: 50; transform: translate(-50%, -55%); }
+  .pc.lift { opacity: .3; }
+  #panel { width: min(92vw, 380px); background: var(--panel); border-radius: 10px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  button, select { background: #3a404a; color: var(--text); border: 1px solid #4a515c; border-radius: 6px; padding: 7px 11px;
+                   font: inherit; font-size: 14px; cursor: pointer; }
+  button:hover { background: #454c58; } button:disabled { opacity: .45; cursor: default; }
+  button.primary { background: #3b6fd6; border-color: #4b7fe6; } button.primary:hover { background: #4a7de2; }
+  label { color: var(--muted); font-size: 13px; }
+  #status { font-weight: 600; min-height: 22px; margin: 4px 0 10px; }
+  #info { font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace; color: var(--muted); min-height: 34px; margin-bottom: 10px; word-break: break-word; }
+  #evalbar { height: 8px; background: #111; border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
+  #evalfill { height: 100%; width: 50%; background: #f2f2f2; transition: width .3s; }
+  #moves { max-height: 300px; overflow-y: auto; background: #23272d; border-radius: 6px; padding: 6px; display: grid;
+           grid-template-columns: 38px 1fr 1fr; gap: 2px 4px; font: 14px/1.6 ui-monospace, Menlo, Consolas, monospace; }
+  #moves .n { color: var(--muted); text-align: right; padding-right: 4px; }
+  #moves .mv { padding: 0 6px; border-radius: 4px; cursor: pointer; }
+  #moves .mv:hover { background: #333944; } #moves .mv.cur { background: #3b6fd6; color: #fff; }
+  #promo { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.45); z-index: 20; border-radius: 6px; }
+  #promo div { display: flex; gap: 6px; background: var(--panel); padding: 10px; border-radius: 10px; }
+  #promo button { font-size: 44px; line-height: 1; padding: 6px 10px; }
+  #replayBar { display: none; }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 10px; }
+  #toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: #3b6fd6; color: #fff; padding: 8px 14px;
+           border-radius: 6px; opacity: 0; transition: opacity .25s; pointer-events: none; }
+</style>
+</head>
+<body>
+<main>
+  <div>
+    <h1>JSChess</h1>
+    <div class="sub" id="sub">A from-scratch JavaScript chess engine. Click or drag pieces to move.</div>
+    <div id="boardWrap">
+      <div id="board"></div>
+      <div id="promo"><div id="promoChoices"></div></div>
+    </div>
+  </div>
+  <div id="panel">
+    <div id="playBar">
+      <div class="row">
+        <button class="primary" id="newWhite">New game as White</button>
+        <button id="newBlack">as Black</button>
+      </div>
+      <div class="row">
+        <label for="think">Engine time</label>
+        <select id="think">
+          <option value="250">0.25 s</option><option value="1000">1 s</option><option value="2000" selected>2 s</option>
+          <option value="5000">5 s</option><option value="10000">10 s</option>
+        </select>
+        <button id="undo">Undo</button>
+        <button id="flip">Flip</button>
+      </div>
+    </div>
+    <div id="replayBar">
+      <div class="row">
+        <button id="rFirst" title="Start (Home)">⏮</button>
+        <button id="rPrev" title="Back (←)">◀</button>
+        <button id="rPlay" title="Auto-play (space)">▶ Play</button>
+        <button id="rNext" title="Forward (→)">▶</button>
+        <button id="rLast" title="End (End)">⏭</button>
+        <button id="rFlip">Flip</button>
+      </div>
+      <div class="row"><button id="rTakeover">Play the engine from here</button></div>
+    </div>
+    <div id="status"></div>
+    <div id="evalbar"><div id="evalfill"></div></div>
+    <div id="info"></div>
+    <div id="moves"></div>
+    <div class="row" style="margin-top:10px">
+      <button id="copyLink">Copy replay link</button>
+      <button id="copyPgn">Copy PGN</button>
+    </div>
+    <div class="hint" id="hint">Replay any game with <code>index.html?pgn=1.e4 e5 2.Nf3 ...</code></div>
+  </div>
+</main>
+<div id="toast"></div>
+<script src="engine.js"></script>
+<script>
+'use strict';
+const E = window.ChessEngine;
+const GLYPH = { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' };
+const $ = (id) => document.getElementById(id);
+
+const state = {
+  startFen: E.START_FEN, moves: [], sans: [], view: 0,   // view = number of plies shown
+  human: 'w', flipped: false, selected: null, legal: [], thinking: false, searchId: 0,
+  replay: false, autoplay: null, over: null, lastInfo: null,
+};
+
+// ------------------------------------------------------------ engine (worker with main-thread fallback)
+let worker = null;
+function makeWorker() {
+  try {
+    const w = new Worker('engine.js');
+    w.onmessage = onEngineMessage;
+    w.onerror = (e) => { e.preventDefault && e.preventDefault(); worker = null; if (state.thinking) runFallback(state.pending); };
+    return w;
+  } catch (e) { return null; }
+}
+worker = makeWorker();
+
+function onEngineMessage(e) {
+  const d = e.data;
+  if (d.id !== state.searchId) return;
+  if (d.type === 'info') showInfo(d.info);
+  else if (d.type === 'bestmove') engineMoved(d.result);
+}
+function runFallback(req) {
+  // engine.js could not start as a worker (e.g. opened via file://): search on the main thread
+  setTimeout(() => {
+    if (req.id !== state.searchId) return;
+    const infos = [];
+    E.setPosition(req.fen, req.moves);
+    const r = E.search({ movetime: req.movetime, onInfo: (i) => infos.push(i) });
+    if (infos.length) showInfo(infos[infos.length - 1]);
+    sync();
+    engineMoved(r);
+  }, 30);
+}
+function startEngine() {
+  state.thinking = true;
+  const req = { cmd: 'search', id: ++state.searchId, fen: state.startFen, moves: state.moves.slice(), movetime: +$('think').value };
+  state.pending = req;
+  render();
+  if (worker) worker.postMessage(req); else runFallback(req);
+}
+function cancelEngine() {
+  state.searchId++;
+  if (state.thinking && worker) { worker.terminate(); worker = makeWorker(); }
+  state.thinking = false;
+}
+function engineMoved(r) {
+  state.thinking = false;
+  if (!r || !r.bestMove) { render(); return; }
+  applyMove(r.bestMove);
+}
+
+// ------------------------------------------------------------ game logic
+function sync(ply) {
+  E.setPosition(state.startFen, state.moves.slice(0, ply == null ? state.moves.length : ply));
+}
+function applyMove(uci) {
+  sync();
+  const r = E.playMove(uci);
+  if (!r) return false;
+  state.moves.push(r.uci); state.sans.push(r.san);
+  state.view = state.moves.length;
+  state.selected = null;
+  afterMove();
+  return true;
+}
+function afterMove() {
+  sync();
+  state.over = E.gameStatus();
+  render();
+  if (!state.replay && !state.over && E.sideToMove() !== state.human && !state.thinking) startEngine();
+}
+function newGame(color) {
+  cancelEngine(); stopAutoplay();
+  if (worker) worker.postMessage({ cmd: 'newgame' });
+  state.replay = false; state.startFen = E.START_FEN; state.moves = []; state.sans = []; state.view = 0;
+  state.human = color; state.flipped = color === 'b'; state.selected = null; state.over = null; state.lastInfo = null;
+  $('info').textContent = ''; setEval(0);
+  showBars();
+  afterMove();
+}
+function undo() {
+  if (state.replay) return;
+  cancelEngine();
+  // take back to the last position where it is the human's turn
+  do {
+    state.moves.pop(); state.sans.pop();
+    sync();
+  } while (state.moves.length && E.sideToMove() !== state.human);
+  if (E.sideToMove() !== state.human) { state.human = E.sideToMove(); }
+  state.view = state.moves.length; state.selected = null; state.over = null;
+  render();
+}
+
+// ------------------------------------------------------------ rendering
+const boardEl = $('board');
+const squares = [];
+function buildBoard() {
+  boardEl.innerHTML = '';
+  squares.length = 0;
+  for (let i = 0; i < 64; i++) {
+    const el = document.createElement('div');
+    el.className = 'sq';
+    boardEl.appendChild(el);
+    squares.push(el);
+  }
+}
+function sqAt(i) {  // grid index -> square name, honouring orientation
+  const r = Math.floor(i / 8), c = i % 8;
+  const file = state.flipped ? 7 - c : c, rank = state.flipped ? r : 7 - r;
+  return 'abcdefgh'[file] + (rank + 1);
+}
+function render() {
+  const atEnd = state.view === state.moves.length;
+  sync(state.view);
+  const legal = (!state.replay && atEnd && !state.over && !state.thinking && E.sideToMove() === state.human) ? E.legalMoves() : [];
+  state.legal = legal;
+  const last = state.view > 0 ? state.moves[state.view - 1] : null;
+  const check = E.inCheck();
+  const stm = E.sideToMove();
+  const targets = state.selected ? legal.filter((m) => m.from === state.selected) : [];
+  for (let i = 0; i < 64; i++) {
+    const name = sqAt(i);
+    const el = squares[i];
+    const fileIdx = name.charCodeAt(0) - 97, rank = +name[1] - 1;
+    let cls = 'sq ' + ((fileIdx + rank) % 2 ? 'l' : 'd');
+    if (last && (last.slice(0, 2) === name || last.slice(2, 4) === name)) cls += ' last';
+    if (state.selected === name) cls += ' sel';
+    const p = E.pieceAt(name);
+    if (check && p && p.toLowerCase() === 'k' && (p === 'K') === (stm === 'w')) cls += ' chk';
+    el.className = cls;
+    el.dataset.sq = name;
+    let html = '';
+    const r = Math.floor(i / 8), c = i % 8;
+    if (c === 0) html += `<span class="coord r">${name[1]}</span>`;
+    if (r === 7) html += `<span class="coord f">${name[0]}</span>`;
+    if (p) html += `<span class="pc ${p === p.toUpperCase() ? 'w' : 'b'}">${GLYPH[p.toLowerCase()]}</span>`;
+    if (targets.some((m) => m.to === name)) html += p ? '<span class="ring"></span>' : '<span class="dot"></span>';
+    el.innerHTML = html;
+  }
+  renderMoves();
+  renderStatus();
+  sync();
+}
+function renderMoves() {
+  const box = $('moves');
+  let html = '';
+  const startBlack = state.startFen.split(' ')[1] === 'b';
+  const startNo = +(state.startFen.split(' ')[5] || 1);
+  const offset = startBlack ? 1 : 0;
+  for (let i = 0; i < state.sans.length + offset; i += 2) {
+    html += `<div class="n">${startNo + i / 2}.</div>`;
+    for (let k = 0; k < 2; k++) {
+      const idx = i + k - offset;
+      if (idx < 0 || idx >= state.sans.length) { html += '<div></div>'; continue; }
+      html += `<div class="mv${idx + 1 === state.view ? ' cur' : ''}" data-ply="${idx + 1}">${state.sans[idx]}</div>`;
+    }
+  }
+  box.innerHTML = html;
+  const cur = box.querySelector('.cur');
+  if (cur) cur.scrollIntoView({ block: 'nearest' });
+}
+const RESULT_TEXT = { checkmate: 'Checkmate', stalemate: 'Stalemate — draw', fifty: 'Draw by the 50-move rule',
+  threefold: 'Draw by threefold repetition', insufficient: 'Draw — insufficient material' };
+function renderStatus() {
+  sync(state.view);
+  const st = E.gameStatus();
+  const stm = E.sideToMove();
+  let s;
+  if (st === 'checkmate') s = `Checkmate — ${stm === 'w' ? 'Black' : 'White'} wins`;
+  else if (st) s = RESULT_TEXT[st];
+  else if (state.replay) s = `${state.view}/${state.moves.length} — ${stm === 'w' ? 'White' : 'Black'} to move`;
+  else if (state.thinking) s = 'Engine is thinking…';
+  else s = stm === state.human ? 'Your move' : 'Engine to move';
+  if (!state.replay && !st && state.view === state.moves.length && E.inCheck()) s += ' (check)';
+  $('status').textContent = s;
+  $('undo').disabled = state.replay || state.moves.length === 0;
+  sync();
+}
+function setEval(cpWhite) {
+  const pct = 50 + 50 * (2 / (1 + Math.exp(-cpWhite / 400)) - 1);
+  $('evalfill').style.width = pct.toFixed(1) + '%';
+}
+function showInfo(i) {
+  state.lastInfo = i;
+  // engine scores are from the side to move; show from White's point of view
+  sync();
+  const sign = E.sideToMove() === 'w' ? 1 : -1;
+  let scoreTxt, cpW;
+  if (i.mate != null) { const m = i.mate * sign; scoreTxt = (m > 0 ? '#' : '#-') + Math.abs(m); cpW = m > 0 ? 3000 : -3000; }
+  else { cpW = i.cp * sign; scoreTxt = (cpW >= 0 ? '+' : '') + (cpW / 100).toFixed(2); }
+  // PV in SAN
+  const sans = [];
+  for (const u of i.pv.slice(0, 8)) { const r = E.playMove(u); if (!r) break; sans.push(r.san); }
+  sync();
+  $('info').textContent = `eval ${scoreTxt}  depth ${i.depth}  ${(i.nodes / 1000).toFixed(0)}k nodes  ${(i.nps / 1000).toFixed(0)}k nps\n${sans.join(' ')}`;
+  setEval(cpW);
+}
+
+// ------------------------------------------------------------ input (click and drag)
+let drag = null;
+function squareFromPoint(x, y) {
+  const el = document.elementFromPoint(x, y);
+  const sq = el && el.closest && el.closest('.sq');
+  return sq ? sq.dataset.sq : null;
+}
+boardEl.addEventListener('pointerdown', (e) => {
+  const name = squareFromPoint(e.clientX, e.clientY);
+  if (!name || !state.legal.length) return;
+  if (state.selected && state.selected !== name && state.legal.some((m) => m.from === state.selected && m.to === name)) {
+    tryMove(state.selected, name); return;
+  }
+  if (state.legal.some((m) => m.from === name)) {
+    state.selected = name; render();
+    const pcEl = squares.find((s) => s.dataset.sq === name).querySelector('.pc');
+    if (pcEl) {
+      const ghost = pcEl.cloneNode(true);
+      ghost.classList.add('ghost');
+      ghost.style.fontSize = getComputedStyle(pcEl).fontSize;
+      ghost.style.left = e.clientX + 'px'; ghost.style.top = e.clientY + 'px';
+      document.body.appendChild(ghost);
+      pcEl.classList.add('lift');
+      drag = { from: name, ghost, pcEl, moved: false };
+      boardEl.setPointerCapture(e.pointerId);
+    }
+  } else { state.selected = null; render(); }
+});
+boardEl.addEventListener('pointermove', (e) => {
+  if (!drag) return;
+  drag.moved = true;
+  drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px';
+});
+function endDrag(e) {
+  if (!drag) return;
+  const d = drag; drag = null;
+  d.ghost.remove(); d.pcEl.classList.remove('lift');
+  const target = e ? squareFromPoint(e.clientX, e.clientY) : null;
+  if (target && target !== d.from && state.legal.some((m) => m.from === d.from && m.to === target)) tryMove(d.from, target);
+}
+boardEl.addEventListener('pointerup', endDrag);
+boardEl.addEventListener('pointercancel', () => endDrag(null));
+
+function tryMove(from, to) {
+  const cands = state.legal.filter((m) => m.from === from && m.to === to);
+  if (!cands.length) return;
+  if (cands.length > 1) { askPromotion(cands); return; }
+  applyMove(cands[0].uci);
+}
+function askPromotion(cands) {
+  const box = $('promoChoices');
+  const white = E.sideToMove() === 'w';
+  box.innerHTML = '';
+  for (const p of ['q', 'r', 'b', 'n']) {
+    const b = document.createElement('button');
+    b.innerHTML = `<span class="pc ${white ? 'w' : 'b'}" style="font-size:44px">${GLYPH[p]}</span>`;
+    b.onclick = () => { $('promo').style.display = 'none'; applyMove(cands.find((m) => m.promo === p).uci); };
+    box.appendChild(b);
+  }
+  $('promo').style.display = 'flex';
+}
+
+// ------------------------------------------------------------ replay mode (?pgn=)
+function parsePgn(text) {
+  let fen = E.START_FEN;
+  const fm = text.match(/\[FEN\s+"([^"]+)"\]/i);
+  if (fm) fen = fm[1];
+  let body = text.replace(/\[[^\]]*\]/g, ' ')   // headers
+    .replace(/\{[^}]*\}/g, ' ')                  // comments
+    .replace(/;[^\n]*/g, ' ');
+  while (/\([^()]*\)/.test(body)) body = body.replace(/\([^()]*\)/g, ' ');  // variations
+  const tokens = body.replace(/\$\d+/g, ' ').replace(/(\d+)\.(\.\.)?/g, ' ').split(/[\s,]+/)
+    .filter((t) => t && !/^(1-0|0-1|1\/2-1\/2|\*)$/.test(t));
+  E.setPosition(fen, []);
+  const moves = [], sans = [];
+  let bad = null;
+  for (const t of tokens) {
+    const r = E.playMove(t);
+    if (!r) { bad = t; break; }
+    moves.push(r.uci); sans.push(r.san);
+  }
+  return { fen, moves, sans, bad };
+}
+function startReplay(pgnText) {
+  const g = parsePgn(pgnText);
+  state.replay = true; state.startFen = g.fen; state.moves = g.moves; state.sans = g.sans; state.view = 0;
+  state.flipped = false;
+  showBars();
+  $('sub').textContent = `Replaying a ${g.moves.length}-ply game.` + (g.bad ? ` Stopped at unreadable move "${g.bad}".` : '') +
+    ' Use the arrow keys or the buttons.';
+  render();
+  if (g.moves.length) startAutoplay();
+}
+function go(ply) { state.view = Math.max(0, Math.min(state.moves.length, ply)); render(); }
+function startAutoplay() {
+  stopAutoplay();
+  if (state.view >= state.moves.length) state.view = 0;
+  $('rPlay').textContent = '❚❚ Pause';
+  state.autoplay = setInterval(() => {
+    if (state.view >= state.moves.length) { stopAutoplay(); return; }
+    go(state.view + 1);
+  }, 900);
+}
+function stopAutoplay() { if (state.autoplay) clearInterval(state.autoplay); state.autoplay = null; $('rPlay').textContent = '▶ Play'; }
+function showBars() {
+  $('replayBar').style.display = state.replay ? 'block' : 'none';
+  $('playBar').style.display = state.replay ? 'none' : 'block';
+  $('evalbar').style.display = state.replay ? 'none' : 'block';
+}
+function takeover() {
+  stopAutoplay();
+  state.moves = state.moves.slice(0, state.view); state.sans = state.sans.slice(0, state.view);
+  state.replay = false;
+  sync();
+  state.human = E.sideToMove();
+  state.flipped = state.human === 'b';
+  $('sub').textContent = 'Continuing the game against the engine. You have the move.';
+  showBars();
+  afterMove();
+}
+
+// ------------------------------------------------------------ export
+function pgnText() {
+  const res = (() => {
+    sync(); const st = E.gameStatus();
+    if (st === 'checkmate') return E.sideToMove() === 'w' ? '0-1' : '1-0';
+    return st ? '1/2-1/2' : '*';
+  })();
+  let s = '';
+  const startBlack = state.startFen.split(' ')[1] === 'b';
+  let no = +(state.startFen.split(' ')[5] || 1);
+  state.sans.forEach((san, i) => {
+    const white = (i % 2 === 0) !== startBlack;
+    if (white) s += no + '. '; else if (i === 0) s += no + '... ';
+    s += san + ' ';
+    if (!white) no++;
+  });
+  const hdr = state.startFen !== E.START_FEN ? `[SetUp "1"]\n[FEN "${state.startFen}"]\n\n` : '';
+  return hdr + s + res;
+}
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.style.opacity = 1; setTimeout(() => (t.style.opacity = 0), 1600); }
+function copy(text, msg) {
+  (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(() => toast(msg), () => prompt('Copy:', text));
+}
+
+// ------------------------------------------------------------ wiring
+$('newWhite').onclick = () => newGame('w');
+$('newBlack').onclick = () => newGame('b');
+$('undo').onclick = undo;
+$('flip').onclick = $('rFlip').onclick = () => { state.flipped = !state.flipped; render(); };
+$('rFirst').onclick = () => { stopAutoplay(); go(0); };
+$('rPrev').onclick = () => { stopAutoplay(); go(state.view - 1); };
+$('rNext').onclick = () => { stopAutoplay(); go(state.view + 1); };
+$('rLast').onclick = () => { stopAutoplay(); go(state.moves.length); };
+$('rPlay').onclick = () => (state.autoplay ? stopAutoplay() : startAutoplay());
+$('rTakeover').onclick = takeover;
+$('moves').onclick = (e) => {
+  const el = e.target.closest('.mv');
+  if (!el) return;
+  if (state.replay) { stopAutoplay(); go(+el.dataset.ply); }
+};
+$('copyLink').onclick = () => {
+  const u = new URL(location.href);
+  u.search = '?pgn=' + encodeURIComponent(pgnText().replace(/\n/g, ' '));
+  copy(u.toString(), 'Replay link copied');
+};
+$('copyPgn').onclick = () => copy(pgnText(), 'PGN copied');
+document.addEventListener('keydown', (e) => {
+  if (!state.replay) return;
+  if (e.key === 'ArrowLeft') { stopAutoplay(); go(state.view - 1); }
+  else if (e.key === 'ArrowRight') { stopAutoplay(); go(state.view + 1); }
+  else if (e.key === 'Home') { stopAutoplay(); go(0); }
+  else if (e.key === 'End') { stopAutoplay(); go(state.moves.length); }
+  else if (e.key === ' ') { e.preventDefault(); state.autoplay ? stopAutoplay() : startAutoplay(); }
+});
+
+buildBoard();
+const params = new URLSearchParams(location.search);
+if (params.get('pgn')) startReplay(params.get('pgn'));
+else newGame('w');
+</script>
+</body>
+</html>

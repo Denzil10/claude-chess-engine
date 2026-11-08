@@ -1,0 +1,10 @@
+[Event "Ladder rung 3000"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "2"]
+[White "Stockfish"]
+[Black "Claude"]
+[Result "1-0"]
+[Termination "CHECKMATE"]
+
+1. e4 e5 2. Nf3 Nf6 3. d4 exd4 4. e5 Ne4 5. Qxd4 d5 6. exd6 Nxd6 7. Nc3 Nc6 8. Qa4 Bd7 9. Be3 Ne5 10. Qb4 Nxf3+ 11. gxf3 Qf6 12. Nd5 Qd8 13. O-O-O c6 14. Nf4 a5 15. Qe1 Be7 16. Nh5 O-O 17. Rg1 g6 18. Rxd6 Bxd6 19. Qc3 f6 20. Bc4+ Kh8 21. Bh6 Bf4+ 22. Nxf4 b5 23. Rd1 Qe7 24. Re1 Qc5 25. Rd1 Qe7 26. Re1 Qc5 27. Bxf8 Rxf8 28. Bd3 Qxc3 29. bxc3 Kg8 30. Rh1 Rd8 31. Rd1 Kf8 32. Bf1 Ke7 33. a3 g5 34. Re1+ Kf7 35. Nd3 Re8 36. Rxe8 Bxe8 37. f4 g4 38. f5 h5 39. Be2 Bd7 40. Nf4 Bxf5 41. f3 Bd7 42. Kd2 gxf3 43. Bf1 c5 44. Ke3 Bc6 45. Nxh5 Ke6 46. Nf4+ Kf5 47. Nd3 c4 48. Nf4 Kg4 49. Bh3+ Kh4 50. Be6 a4 51. Bd5 Be8 52. Bxf3 Kg5 53. Bg2 Bd7 54. Bh1 Be8 55. Ne6+ Kh4 56. Nd4 Kh3 57. Be4 Kxh2 58. Bb7 Kg3 59. Nf5+ Kg4 60. Nd4 Kg3 61. Bc8 Kh4 62. Ne6 Bg6 63. Nd4 Be8 64. Kf4 Kh5 65. Ba6 Kg6 66. Nxb5 Kg7 67. Nd6 Bh5 68. Nf5+ Kf8 69. Ke4 Bd1 70. Nd4 Ke7 71. Bxc4 Bh5 72. Nf5+ Kd8 73. Kd5 Be8 74. Bf1 Bd7 75. Nd4 f5 76. c4 f4 77. Bg2 Kc7 78. c5 Bc8 79. c6 f3 80. Bxf3 Kb6 81. Kd6 Ka6 82. Bg2 Ka5 83. Be4 Kb6 84. c4 Ka5 85. Bd3 Kb6 86. c5+ Ka7 87. Nb5+ Ka6 88. Nd4+ Ka7 89. c7 Ka8 90. Bf5 Kb7 91. Bd7 Ka7 92. Bxc8 Ka8 93. Bg4 Ka7 94. Nc6+ Ka6 95. Kd5 Kb5 96. Bf5 Ka6 97. Bh3 Kb5 98. Bf1# 1-0

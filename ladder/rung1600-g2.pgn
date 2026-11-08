@@ -1,0 +1,10 @@
+[Event "Ladder rung 1600"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "2"]
+[White "Stockfish"]
+[Black "Claude"]
+[Result "0-1"]
+[Termination "CHECKMATE"]
+
+1. d4 Nf6 2. c3 d5 3. Bg5 h6 4. Bxf6 exf6 5. e3 Be6 6. Nd2 Bd6 7. Qb3 b6 8. Bd3 O-O 9. Qc2 Qd7 10. Ngf3 c5 11. c4 Nc6 12. dxc5 Nb4 13. Qc3 Bxc5 14. Be2 dxc4 15. Nxc4 Nd5 16. Qb3 b5 17. O-O bxc4 18. Bxc4 Rab8 19. Qd1 Rxb2 20. Bb3 Nc3 21. Qxd7 Bxd7 22. Kh1 Ne4 23. Kg1 Nxf2 24. Rfb1 Rxb1+ 25. Ne1 Nh3+ 26. gxh3 Bxe3+ 27. Kf1 Bb5+ 28. Bc4 Bxc4+ 29. Kg2 Rxa1 30. a4 Rxe1 31. a5 Bd5+ 32. Kg3 Rg1+ 33. Kh4 Bf2+ 34. Kh5 Rg5# 0-1

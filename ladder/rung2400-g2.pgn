@@ -1,0 +1,10 @@
+[Event "Ladder rung 2400"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "2"]
+[White "Stockfish"]
+[Black "Claude"]
+[Result "0-1"]
+[Termination "CHECKMATE"]
+
+1. Nf3 d5 2. c3 Nf6 3. d4 Bf5 4. Qb3 b6 5. c4 dxc4 6. Qxc4 e6 7. Bg5 Be7 8. g3 h6 9. Bf4 Nd5 10. Bg2 Nxf4 11. gxf4 O-O 12. Ne5 c6 13. O-O b5 14. Qc3 f6 15. Nf3 Qd6 16. e3 Bh7 17. Nbd2 Nd7 18. Nb3 b4 19. Qe1 Bd3 20. Qd1 Bxf1 21. Qxf1 Rac8 22. Qc4 Qd5 23. Qf1 Qb5 24. Qxb5 cxb5 25. d5 exd5 26. Nh4 Nb6 27. Ng6 Rfe8 28. Bh3 Rc7 29. Be6+ Kh7 30. Bf5 Bd6 31. Nd4 a6 32. b3 Rc3 33. Kh1 Bc5 34. Nh4+ Kg8 35. Be6+ Kh8 36. Nhf5 Rd3 37. Rg1 Bxd4 38. Bf7 Rd8 39. exd4 Rf3 40. Nxg7 Rd7 41. Bh5 Rxf4 42. Ne6 Rxf2 43. Rg6 Rf7 44. Bg4 f5 45. Nd8 Rc7 46. Bd1 Rc1 47. Nf7+ Kh7 48. Rg1 Rxa2 49. Bf3 Rxg1+ 50. Kxg1 Rb2 51. Nd6 Rxb3 52. Be2 Rc3 53. Nb7 b3 54. Kf2 b2 55. Bh5 b1=Q 56. Nd6 Rc2+ 57. Be2 Qh1 58. Nxf5 Qxh2+ 59. Kf3 Qxe2+ 60. Kf4 Qe4+ 61. Kg3 Rg2+ 62. Kh3 Qg4# 0-1

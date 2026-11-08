@@ -1,0 +1,10 @@
+[Event "Ladder rung 1320"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "1"]
+[White "Claude"]
+[Black "Stockfish"]
+[Result "1-0"]
+[Termination "CHECKMATE"]
+
+1. Nf3 c6 2. e4 Nf6 3. e5 Ne4 4. d3 Nc5 5. d4 Nca6 6. Be2 Nc7 7. O-O d6 8. Nc3 Nd7 9. Bc4 Nb6 10. Bd3 Be6 11. Ne4 h6 12. c3 g5 13. Ng3 g4 14. exd6 exd6 15. Nd2 h5 16. Re1 Kd7 17. a4 Bh6 18. Nf5 Bg5 19. Nxd6 Bxd2 20. Nxb7 Qc8 21. Nc5+ Ke7 22. Qxd2 f6 23. Bf5 Qg8 24. a5 Qg5 25. Qd3 Qh4 26. Nxe6 Ncd5 27. g3 Nb4 28. cxb4 Nd5 29. gxh4 Rae8 30. Qc4 Kf7 31. b5 Rhf8 32. bxc6 Ne7 33. Nxf8+ Kg7 34. Bh6+ Kxh6 35. Qf7 Nxf5 36. Qxf6# 1-0

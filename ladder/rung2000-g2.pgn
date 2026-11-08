@@ -1,0 +1,10 @@
+[Event "Ladder rung 2000"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "2"]
+[White "Stockfish"]
+[Black "Claude"]
+[Result "1/2-1/2"]
+[Termination "STALEMATE"]
+
+1. d4 Nf6 2. Nc3 d5 3. Bf4 e6 4. a3 Bd6 5. Bxd6 cxd6 6. e3 O-O 7. Qd2 e5 8. O-O-O Nc6 9. f3 Be6 10. b3 Re8 11. g4 h6 12. Kb1 a6 13. Kb2 exd4 14. exd4 a5 15. Nge2 a4 16. h4 axb3 17. cxb3 Qa5 18. a4 Qb4 19. g5 hxg5 20. hxg5 Nh7 21. Nc1 f6 22. gxf6 Nxf6 23. N1a2 Qb6 24. Nb5 Rad8 25. Qg5 Rd7 26. Bd3 Nd8 27. Nb4 Rde7 28. Rh2 Nf7 29. Qg6 Nh8 30. Qg3 Qa5 31. Ka3 Qd8 32. Rb1 Rd7 33. Rg1 Qe7 34. Rhg2 Qf8 35. Rh2 Qe7 36. Qh4 Nf7 37. Rhg2 Nh8 38. f4 Ne4 39. Qh2 Bf5 40. Rxg7+ Qxg7 41. Rxg7+ Kxg7 42. Qg1+ Ng6 43. Nxd5 Kf7 44. Bb1 Ne7 45. Nb6 Rdd8 46. Bxe4 Bxe4 47. Qg4 Rh8 48. d5 Bxd5 49. Nxd5 Nxd5 50. f5 Ne7 51. f6 Ng6 52. Qb4 Kxf6 53. Nxd6 b5 54. a5 Ra8 55. Nxb5 Kf5 56. Nc3 Nf4 57. Qc5+ Kg4 58. Qc7 Rhd8 59. b4 Rd3 60. Kb2 Rd2+ 61. Kb3 Rd3 62. Qg7+ Kf5 63. Qf7+ Kg4 64. Qc4 Rdd8 65. Qc6 Rg8 66. Qb7 Rgb8 67. Qc7 Ne6 68. Qd6 Re8 69. Ka4 Rad8 70. Qe5 Ng5 71. Qh2 Rd3 72. Qg2+ Rg3 73. Qc2 Re6 74. Qd1+ Rf3 75. Qd4+ Rf4 76. Qd5 Kh4 77. Qd3 Ne4 78. Ka3 Nxc3 79. Qxc3 Ref6 80. Qd2 Rf3+ 81. Ka2 Rf2 82. Qxf2+ Rxf2+ 83. Kb3 Rf5 84. a6 Rf1 85. Kc4 Kg5 86. Kd5 Ra1 87. b5 Kf4 88. Kd4 Kf3 89. Kc4 Ra2 90. Kd5 Ke3 91. a7 Rxa7 92. Kd6 Kd4 93. Kc6 Re7 94. Kd6 Rh7 95. b6 Kc4 96. Kc6 Rh6+ 97. Kc7 Kb5 98. b7 Rh7+ 99. Kb8 Ka6 100. Ka8 Rxb7 1/2-1/2
